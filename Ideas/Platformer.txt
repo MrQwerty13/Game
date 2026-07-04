@@ -1,6 +1,0 @@
-The platformer is a game where you control a character that moves across a level.
-But it's not a platformer.
-Your character is always moving forward.
-And you can jump.
-Sometimes you see some enemies(slimes, zombies and bosses).
-If you see them, you have to fight them and forwarding is stoped and you kil them by solving some puzzles.
