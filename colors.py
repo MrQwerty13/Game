@@ -6,7 +6,9 @@ COLORS = [
 ]
 
 
-def get_color(value: int):
+def get_color(value):
+    if value is None:
+        return (0, 0, 0)
     if 0 <= value < len(COLORS):
         return COLORS[value]
     return (255, 255, 255)

@@ -17,7 +17,6 @@ clock = pygame.time.Clock()
 
 game_board = board.create_board()
 
-
 def mouse_to_grid(pos):
     x, y = pos
     return x // CONSTS.TILE_SIZE, y // CONSTS.TILE_SIZE
@@ -90,10 +89,23 @@ while running:
                     if is_adjacent(x1, y1, x2, y2):
                         swap(game_board, x1, y1, x2, y2)
 
+                        matches = board.find_matches(game_board)
+
+                        if len(matches) == 0:
+                            swap(game_board, x1, y1, x2, y2)
+                        else:
+                            board.remove_matches(game_board, matches)
+                            board.drop_down(game_board)
+
+                            # каскады (очень важно)
+                            board.resolve_board(game_board)
+
                     selected = None
 
+
+
     # обновление матчей (ВАЖНО: каждый кадр)
-    matches = board.find_matches(game_board)
+    matches = set()
 
     screen.fill((0, 0, 0))
 
