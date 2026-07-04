@@ -17,6 +17,17 @@ clock = pygame.time.Clock()
 
 game_board = board.create_board()
 
+state = "idle"  # idle / resolving
+timer = 0
+
+selected = None
+matches = set()
+
+
+def can_interact():
+    return state == "idle"
+
+
 def mouse_to_grid(pos):
     x, y = pos
     return x // CONSTS.TILE_SIZE, y // CONSTS.TILE_SIZE
@@ -53,27 +64,25 @@ def draw_board(screen, board_data, selected, matches=None):
 
             pygame.draw.rect(screen, color, rect)
 
-            # selected highlight
             if selected == (x, y):
                 pygame.draw.rect(screen, (255, 255, 255), rect, 3)
 
-            # matches highlight
             if matches and (x, y) in matches:
                 pygame.draw.rect(screen, (255, 255, 255), rect, 4)
 
 
-selected = None
-matches = set()
-
 running = True
 
 while running:
+
+    # ================= INPUT =================
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
+            if event.button == 1 and can_interact():
+
                 mx, my = pygame.mouse.get_pos()
                 grid_x, grid_y = mouse_to_grid((mx, my))
 
@@ -82,6 +91,7 @@ while running:
 
                 if selected is None:
                     selected = (grid_x, grid_y)
+
                 else:
                     x1, y1 = selected
                     x2, y2 = grid_x, grid_y
@@ -97,16 +107,23 @@ while running:
                             board.remove_matches(game_board, matches)
                             board.drop_down(game_board)
 
-                            # каскады (очень важно)
-                            board.resolve_board(game_board)
+                            state = "resolving"
+                            timer = 30
 
                     selected = None
 
+    # ================= UPDATE =================
+    if state == "resolving":
+        timer -= 1
 
+        if timer <= 0:
+            board.resolve_board(game_board)
+            state = "idle"
 
-    # обновление матчей (ВАЖНО: каждый кадр)
-    matches = set()
+            # после resolve сразу пересчитать
+            matches = board.find_matches(game_board)
 
+    # ================= RENDER =================
     screen.fill((0, 0, 0))
 
     draw_board(screen, game_board, selected, matches)
